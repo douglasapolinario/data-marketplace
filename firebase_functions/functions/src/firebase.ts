@@ -70,7 +70,7 @@ exports.getData = async (device: string, timestamp?: number) => {
   });
 };
 
-  exports.getDevice = async (device: string) => {
+exports.getDevice = async (device: string, internal: boolean = false) => {
   // Get User's purchase
   const doc = await admin
     .firestore()
@@ -80,8 +80,10 @@ exports.getData = async (device: string, timestamp?: number) => {
   // Check user's profile for purchase
   if (doc.exists) {
     const result = doc.data();
-    delete result.sk;
-    delete result.owner;
+    if (!internal) {
+      delete result.sk;
+      delete result.owner;
+    }
     return result;
   }
   console.log('getDevice failed.', device, doc);
@@ -118,8 +120,8 @@ exports.getDevices = async () => {
             .then(deviceData => {
               if (deviceData.size !== 0) {
                 result.hasData = true;
+                results.push(result);
               };
-              results.push(result);
               resolve(result);
             })
             .catch(error => {
@@ -460,4 +462,20 @@ exports.getEmailSettings = async () => {
   }
   console.error('getEmailSettings failed. Setting does not exist', doc);
   throw Error(`The getEmailSettings setting doesn't exist.`);
+};
+
+exports.getGoogleMapsApiKey = async () => {
+  const doc = await admin
+    .firestore()
+    .collection('settings')
+    .doc('settings')
+    .get();
+  if (doc.exists) {
+    const data = doc.data();
+    if (data.googleMapsApiKey) {
+      return data.googleMapsApiKey;
+    }
+  }
+  console.log('getGoogleMapsApiKey failed. Setting does not exist', doc);
+  throw Error(`The getGoogleMapsApiKey setting doesn't exist.`);
 };

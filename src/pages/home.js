@@ -2,7 +2,7 @@ import React from 'react';
 import ReactGA from 'react-ga';
 import styled from 'styled-components';
 import { withRouter } from 'react-router';
-import BurgerMenu from '../components//header/burger';
+import BurgerMenu from '../components/header/burger';
 import MiniHeader from '../components/header/mini-header';
 import Header from '../components/header';
 import Content from '../components/content';
@@ -10,11 +10,12 @@ import Partners from '../components/partners';
 import Footer from '../components/footer';
 import ScrollToTop from '../components/scroll-to-top';
 import Cookie from '../components/cookie';
+import Banner from '../components/banner';
 
 const content1 = {
   id: 'about',
   text: `The IOTA Foundation launched the Data Marketplace as a proof of concept and open innovation ecosystem in the fourth quarter of 2017. The rationale and opportunity landscape related to this initiative are described in depth <a href="https://blog.iota.org/iota-data-marketplace-cb6be463ac7f">here</a>.
-<br /><br />As of July 2018, the initiative produced a PoC available online at <a href="https://data.iota.org">https://data.iota.org</a> and continued to onboard organisations. We now have more than 70 organisations signed up.`,
+<br /><br />As of 2019, the initiative produced a PoC available online at <a href="https://data.iota.org">https://data.iota.org</a> and continued to onboard organisations. We now have more than 70 organisations signed up.`,
 };
 
 const content2 = {
@@ -56,6 +57,7 @@ class HomePage extends React.Component {
         <Cookie />
         <BurgerMenu />
         <MiniHeader />
+        <Banner />
         <Header onAnchorClick={this.onAnchorClick} />
         <Content content={content1} anchor={anchor} />
         <ImgContainer>

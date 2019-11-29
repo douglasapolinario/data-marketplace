@@ -46,7 +46,8 @@ export default class extends React.Component {
   async componentDidMount() {
     ReactGA.pageview('/demo');
     const devices = await allDevices();
-    this.setState({ devices, loading: false });
+    const activeDevices = devices.filter(device => !device.inactive);
+    this.setState({ devices: activeDevices, loading: false });
   }
 
   onAnchorClick(anchor) {
@@ -74,7 +75,9 @@ export default class extends React.Component {
             <React.Fragment>
               <Map {...this.state} />
               <SensorList {...this.state} />
-              <ScrollToTop onClick={this.onScrollToTop} />
+              {
+                this.state.devices.length > 0 ? <ScrollToTop onClick={this.onScrollToTop} /> : null
+              }
             </React.Fragment>
           )
         }

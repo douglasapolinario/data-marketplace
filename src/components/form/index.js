@@ -249,7 +249,13 @@ class Form extends React.Component {
                   onChange={this.handleInputChange}
                 />
                 <strong>Acknowledgement</strong> of{' '}
-                <a href="https://www.iota.org/research/privacy-policy">Disclaimer clause</a>
+                <a 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  href="https://www.iota.org/research/privacy-policy"
+                >
+                  Disclaimer clause
+                </a>
               </Label>
               <Label>
                 <Input

@@ -25,6 +25,7 @@ class Map extends React.Component {
       },
       popupInfo: null,
       mapHeight: 900,
+      devices: props.devices
     };
 
     this.openPopup = this.openPopup.bind(this);
@@ -36,13 +37,6 @@ class Map extends React.Component {
   componentDidMount() {
     window.addEventListener('resize', this.resize);
     this.resize();
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.anchor) {
-      const target = document.querySelector(`#${nextProps.anchor}`);
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
   }
 
   componentWillUnmount() {
@@ -135,7 +129,7 @@ class Map extends React.Component {
   }
 
   render() {
-    const { viewport, mapHeight, popupInfo } = this.state;
+    const { devices, viewport, mapHeight, popupInfo } = this.state;
     const { settings } = this.props;
     if (!settings.mapboxApiAccessToken) return <div />;
 
@@ -160,7 +154,7 @@ class Map extends React.Component {
           <div style={{ position: 'absolute', right: 20, top: 10 }}>
             <NavigationControl onViewportChange={this.updateViewport} />
           </div>
-          <Markers devices={this.props.devices} openPopup={this.openPopup} />
+          <Markers devices={devices} openPopup={this.openPopup} />
           {this.renderPopup()}
         </MapGL>
 

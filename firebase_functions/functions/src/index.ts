@@ -38,6 +38,10 @@ const {
   initWallet,
   checkRecaptcha,
   purchaseData,
+  iacToAddress,
+  addressToIac,
+  gpsToIac,
+  initSemarketWallet,
 } = require('./helpers');
 
 // Take in data from device
@@ -94,13 +98,14 @@ exports.newDevice = functions.https.onRequest((req, res) => {
         user.numberOfDevices = await getNumberOfDevices();
       }
       if (userDevices.length < user.numberOfDevices) {
-        const device = await getDevice(<String>packet.id);
+        const device = await getDevice(<String>packet.id, true);
         if (device && device.owner !== key.uid) {
           return res.json({ error: `Device with ID ${packet.id} already exists. Please specify new unique ID` });
         }
 
         return res.json({
           success: await setDevice(packet.id, secretKey, address, seed, packet.device),
+          sk: secretKey
         });
       } else {
         console.error('newDevice failed. You have too many devices', userDevices.length);
@@ -126,7 +131,8 @@ exports.delete = functions.https.onRequest((req, res) => {
     try {
       const { apiKey, deviceId } = packet;
       const key = await getKey(<String>apiKey);
-      const device = await getDevice(<String>deviceId);
+      const device = await getDevice(<String>deviceId, true);
+
       if (!device) {
         throw Error(`Device doesn't exist`);
       }
@@ -462,6 +468,47 @@ exports.purchaseStream = functions.https.onRequest((req, res) => {
       return res.json({ error: 'Purchase failed. Insufficient balance of out of sync' });
     } catch (e) {
       console.error('purchaseData failed. Error: ', e, packet);
+      return res.status(403).json({ error: e.message });
+    }
+  });
+});
+
+exports.semarket = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    try {
+      const params = req.query;
+      if (params.address) {
+        const transactions = await initSemarketWallet(params.address, params.amount || null);
+        console.log('semarket wallet transactions:', transactions.length);
+        return res.json({ success: transactions.length > 0 });
+      }
+      return res.json({ success: false, error: 'no address' });
+    } catch (e) {
+      console.error('semarket wallet failed. Error: ', e);
+      return res.status(403).json({ error: e.message });
+    }
+  });
+});
+
+exports.location = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    try {
+      const params = req.query;
+      let result = null;
+      if (params.address) {
+        result = await addressToIac(decodeURI(params.address));
+        console.log(`Converted address "${decodeURI(params.address)}" to "${result}"`);
+      } else if (params.iac) {
+        result = await iacToAddress(params.iac);
+        console.log(`Converted area code "${params.iac}" to "${result}"`);
+      } else if (params.gps) {
+        const coordinates = params.gps.split(',').map(coord => Number(coord));
+        result = await gpsToIac(...coordinates);
+        console.log(`Converted GPS coordinates "${params.gps}" to "${result}"`);
+      }
+      return res.json(result);
+    } catch (e) {
+      console.error('location failed. Error: ', e.message);
       return res.status(403).json({ error: e.message });
     }
   });

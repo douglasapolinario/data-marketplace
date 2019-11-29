@@ -2,12 +2,14 @@ import * as crypto from 'crypto';
 const axios = require('axios');
 const { composeAPI, createPrepareTransfers, generateAddress } = require('@iota/core');
 const { asTransactionObject } = require('@iota/transaction-converter');
+const iotaAreaCodes = require('@iota/area-codes');
 const {
   getSettings,
   updateWalletAddressKeyIndex,
   updateUserWalletAddressKeyIndex,
   getIotaWallet,
   getUserWallet,
+  getGoogleMapsApiKey,
 } = require('./firebase');
 
 const checkRecaptcha = async (captcha, emailSettings) => {
@@ -186,6 +188,21 @@ const initWallet = async (userId = null) => {
   };
 };
 
+const initSemarketWallet = async (receiveAddress, desiredBalance = null) => {
+  const { address, keyIndex, seed, defaultBalance } = await getIotaWallet();
+  const balance = desiredBalance ? Number(desiredBalance) : defaultBalance;
+  const transactions = await transferFunds(
+    receiveAddress,
+    address,
+    keyIndex,
+    seed,
+    balance,
+    updateWalletAddressKeyIndex,
+    null
+  );
+  return transactions;
+};
+
 const purchaseData = async (userId, receiveAddress, value) => {
   const { address, keyIndex, seed } = await getUserWallet(userId);
   const transactions = await transferFunds(
@@ -200,6 +217,58 @@ const purchaseData = async (userId, receiveAddress, value) => {
   return transactions;
 };
 
+const gpsToAddress = async (latitude, longitude) => {
+  try {
+    const apiKey = await getGoogleMapsApiKey();
+    const options = {
+      method: 'GET',
+      headers: { 'content-type': 'application/json; charset=UTF-8' },
+      url: `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`
+    };
+    const result = await axios(options);
+    return result.data.results[0].formatted_address;
+  } catch (error) {
+    console.log('iacToAddress error:', error);
+  }
+  return null;
+}
+
+const iacToAddress = async iac => {
+  try {
+    const { latitude, longitude } = iotaAreaCodes.decode(iac);
+    return await gpsToAddress(latitude, longitude);
+  } catch (error) {
+    console.log('iacToAddress error:', error);
+  }
+  return null;
+}
+
+const gpsToIac = async (latitude, longitude) => {
+  try {
+    return iotaAreaCodes.encode(latitude, longitude);
+  } catch (error) {
+    console.error('gpsToIac error:', error);
+  }
+  return null;
+}
+
+const addressToIac = async address => {
+  try {
+    const apiKey = await getGoogleMapsApiKey();
+    const options = {
+      method: 'GET',
+      headers: { 'content-type': 'application/json; charset=UTF-8' },
+      url: `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${apiKey}`
+    };
+    const result = await axios(options);
+    const { lat, lng } = result.data.results[0].geometry.location;
+    return iotaAreaCodes.encode(lat, lng);
+  } catch (error) {
+    console.error('addressToIac error:', error);
+  }
+  return null;
+}
+
 module.exports = {
   generateUUID,
   generateNewAddress,
@@ -210,4 +279,9 @@ module.exports = {
   faucet,
   purchaseData,
   checkRecaptcha,
+  iacToAddress,
+  gpsToAddress,
+  addressToIac,
+  gpsToIac,
+  initSemarketWallet
 }
