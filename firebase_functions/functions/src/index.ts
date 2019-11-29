@@ -232,7 +232,7 @@ exports.stream = functions.https.onRequest((req, res) => {
         return res.json({ success: false });
       }
       // Return data
-      return res.json(await getData(<String>params.deviceId, params.time));
+      return res.json(await getData(<String>params.deviceId, purchase.time));
     } catch (e) {
       console.error('stream failed. Error: ', e.message);
       return res.status(403).json({ error: e.message });

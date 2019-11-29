@@ -13,3 +13,5 @@
 *.log
 
 webpack-build-log.json
+
+.idea

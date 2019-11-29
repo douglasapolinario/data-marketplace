@@ -32,6 +32,7 @@ export default {
     return await request(`${domain}/${endpoint}`, { method: 'get', params });
   },
   post: async (endpoint, data = {}) => {
+    console.log("DATA IOTA --> ", data)
     return await request(`${domain}/${endpoint}`, { method: 'post', data });
   },
   put: async (endpoint, data = {}) => {

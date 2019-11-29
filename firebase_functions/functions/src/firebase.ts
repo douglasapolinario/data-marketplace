@@ -70,7 +70,7 @@ exports.getData = async (device: string, timestamp?: number) => {
   });
 };
 
-exports.getDevice = async (device: string) => {
+  exports.getDevice = async (device: string) => {
   // Get User's purchase
   const doc = await admin
     .firestore()

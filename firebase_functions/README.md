@@ -26,13 +26,16 @@ Project is written in TypeScript, so you'll need to build it before deploying. T
 cd functions && yarn build
 ```
 
-## Testing
+## Testing remote function in gcloud env
 
 To test this locally, run
 `firebase functions:shell`
 
 Then call a function with parameters
-`getDevices.post('/getDevices').form({})`
+`device('/?deviceId=apolinario-station')`
+
+#### Debug as node app, function in dev env
+run debug-function and call by postman  `http://localhost:8080?deviceId=apolinario-station` 
 
 #### Deploy fo Firebase
 
