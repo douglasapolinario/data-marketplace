@@ -364,6 +364,8 @@ exports.getSettings = async () => {
       provider,
       recaptchaSiteKey,
       tangleExplorer,
+      nodes,
+      tangle
     } = doc.data();
     return {
       defaultPrice,
@@ -374,6 +376,8 @@ exports.getSettings = async () => {
       provider,
       recaptchaSiteKey,
       tangleExplorer,
+      nodes,
+      tangle
     };
   }
   console.error('getSettings failed. Setting does not exist', doc);
@@ -441,7 +445,6 @@ exports.getIotaWallet = async () => {
 };
 
 exports.updateWalletAddressKeyIndex = async (address: string, keyIndex: number, userId: string) => {
-  console.log('updateWalletAddressKeyIndex', address, keyIndex, userId);
   await admin
     .firestore()
     .collection('settings')

@@ -445,7 +445,7 @@ exports.purchaseStream = functions.https.onRequest((req, res) => {
     try {
       const device = await getDevice(packet.deviceId);
       const wallet = await getUserWallet(packet.userId);
-      const { iotaApiVersion, provider, defaultPrice } = await getSettings();
+      const { iotaApiVersion, nodes, defaultPrice } = await getSettings();
       let price = defaultPrice;
       if (device) {
         if (device.price) {
@@ -476,7 +476,7 @@ exports.purchaseStream = functions.https.onRequest((req, res) => {
         const hashes = transactions && transactions.map(transaction => transaction.hash);
 
         // Find TX on network and parse
-        const bundle = await findTx(hashes, provider, iotaApiVersion);
+        const bundle = await findTx(hashes, nodes[0], iotaApiVersion);
 
         // Make sure TX is valid
         if (!validateBundleSignatures(bundle)) {
@@ -502,7 +502,6 @@ exports.semarket = functions.https.onRequest((req, res) => {
       const params = req.query;
       if (params.address) {
         const transactions = await initSemarketWallet(params.address, params.amount || null);
-        console.log('semarket wallet transactions:', transactions.length);
         return res.json({ success: transactions.length > 0 });
       }
       return res.json({ success: false, error: 'no address' });
@@ -519,13 +518,13 @@ exports.location = functions.https.onRequest((req, res) => {
       const params = req.query;
       let result = null;
       if (params.address) {
-        result = await addressToIac(decodeURI(params.address));
-        console.log(`Converted address "${decodeURI(params.address)}" to "${result}"`);
+        result = await addressToIac(decodeURI(params.address.toString()));
+        console.log(`Converted address "${decodeURI(params.address.toString())}" to "${result}"`);
       } else if (params.iac) {
         result = await iacToAddress(params.iac);
         console.log(`Converted area code "${params.iac}" to "${result}"`);
       } else if (params.gps) {
-        const coordinates = params.gps.split(',').map(coord => Number(coord));
+        const coordinates = params.gps.toString().split(',').map(coord => Number(coord));
         result = await gpsToIac(...coordinates);
         console.log(`Converted GPS coordinates "${params.gps}" to "${result}"`);
       }
