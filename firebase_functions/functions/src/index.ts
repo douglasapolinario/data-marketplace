@@ -1,4 +1,5 @@
 import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
 const cors = require('cors')({ origin: true });
 const { validateBundleSignatures } = require('@iota/bundle-validator');
 
@@ -244,6 +245,28 @@ exports.stream = functions.https.onRequest((req, res) => {
       return res.status(403).json({ error: e.message });
     }
   });
+});
+
+//Create User
+exports.createUser = functions.https.onRequest((req, res) => {
+   cors(req, res, async () => {
+      const body = req.body;
+      let id = ""
+      console.log(body);
+      admin.auth().createUser(body)
+          .then(result => {
+            id = result.uid
+            return getUser(result.uid)
+          })
+          .then(result => {
+            const apiKey = result.apiKey
+            return res.json({id, apiKey})
+          })
+          .catch(error => {
+            return res.json(error)
+          });
+
+   });
 });
 
 // // Setup User with an API Key

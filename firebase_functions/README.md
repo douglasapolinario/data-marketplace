@@ -23,7 +23,11 @@ cd functions && yarn
 Project is written in TypeScript, so you'll need to build it before deploying. This will create a new folder `lib` under `functions`.
 
 ```javascript
-cd functions && yarn build
+cd functions && yarn build 
+```
+or
+```javascript
+cd functions && npm run build 
 ```
 
 ## Testing remote function in gcloud env
